@@ -1,7 +1,7 @@
 
 import { Recipe, RecipeRequest, RecipeSearchRequest } from '@/types/Recipe';
 
-const API_URL = 'http://localhost:8080/api/recipes'; // Adjust as needed for your backend
+const API_URL = 'http://localhost:9000/recipes'; // Adjust as needed for your backend
 
 // Get all recipes
 export const fetchAllRecipes = async (): Promise<Recipe[]> => {
