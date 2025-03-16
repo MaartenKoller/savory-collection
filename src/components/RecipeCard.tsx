@@ -5,14 +5,15 @@ import { Recipe } from '@/types/Recipe';
 import { Clock, Leaf, Users } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { getRecipeImage } from '@/utils/imageUtils';
 
 interface RecipeCardProps {
   recipe: Recipe;
 }
 
 const RecipeCard = ({ recipe }: RecipeCardProps) => {
-  // Default image if none provided
-  const imageUrl = recipe.image || 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80';
+  // Use the utility function to get an image
+  const imageUrl = getRecipeImage(recipe.image);
   
   return (
     <Link to={`/recipes/${recipe.id}`}>

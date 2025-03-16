@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchAllRecipes, deleteRecipe as apiDeleteRecipe } from '@/services/api';
@@ -13,6 +12,7 @@ import { Clock, Leaf, Users, MoreVertical, Pencil, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/components/ui/use-toast';
+import { getRecipeImage } from '@/utils/imageUtils';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -48,7 +48,6 @@ const RecipeDetail = () => {
         if (foundRecipe) {
           setRecipe(foundRecipe);
         } else {
-          // For demo purposes - find in sample data if not in API
           const sampleRecipe = sampleRecipes.find(r => r.id === Number(id));
           if (sampleRecipe) {
             setRecipe(sampleRecipe);
@@ -69,7 +68,6 @@ const RecipeDetail = () => {
           variant: 'destructive',
         });
         
-        // For demo purposes - find in sample data if API fails
         const sampleRecipe = sampleRecipes.find(r => r.id === Number(id));
         if (sampleRecipe) {
           setRecipe(sampleRecipe);
@@ -99,7 +97,6 @@ const RecipeDetail = () => {
         description: 'Failed to delete recipe. Please try again later.',
         variant: 'destructive',
       });
-      // For demo, navigate anyway
       navigate('/');
     }
   };
@@ -135,8 +132,7 @@ const RecipeDetail = () => {
     );
   }
 
-  // Default image if none provided
-  const imageUrl = recipe.image || 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80';
+  const imageUrl = getRecipeImage(recipe.image);
 
   return (
     <div className="min-h-screen">
@@ -151,27 +147,33 @@ const RecipeDetail = () => {
             >
               Back to Recipes
             </Button>
+
+            <div className="flex gap-2">
+              <Button 
+                onClick={() => navigate(`/recipes/edit/${recipe.id}`)}
+                className="bg-terracotta hover:bg-terracotta/90 text-white"
+              >
+                <Pencil className="mr-2 h-4 w-4" />
+                Edit Recipe
+              </Button>
             
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <MoreVertical className="h-5 w-5" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => navigate(`/recipes/edit/${recipe.id}`)}>
-                  <Pencil className="h-4 w-4 mr-2" />
-                  Edit Recipe
-                </DropdownMenuItem>
-                <DropdownMenuItem 
-                  className="text-destructive focus:text-destructive"
-                  onClick={() => setDeleteDialogOpen(true)}
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Delete Recipe
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <MoreVertical className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem 
+                    className="text-destructive focus:text-destructive"
+                    onClick={() => setDeleteDialogOpen(true)}
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete Recipe
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
             
             <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
               <AlertDialogContent>
@@ -264,7 +266,6 @@ const RecipeDetail = () => {
   );
 };
 
-// Sample data for demo purposes - remove in production
 const sampleRecipes: Recipe[] = [
   {
     id: 1,
@@ -275,7 +276,7 @@ const sampleRecipes: Recipe[] = [
     ingredients: ["2 cups mixed vegetables", "2 tbsp soy sauce", "1 tbsp olive oil", "2 cloves garlic"],
     instructions: "Heat oil in a pan. Add garlic and stir fry for 30 seconds. Add vegetables and cook for 5 minutes. Add soy sauce and cook for another 2 minutes.",
     servings: 2,
-    image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80"
+    image: "https://images.unsplash.com/photo-1495521821757-a1efb6729352?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80"
   },
   {
     id: 2,
