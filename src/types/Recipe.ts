@@ -15,10 +15,23 @@ export interface RecipeRequest {
   recipes: Recipe[];
 }
 
+export enum ComparisonType {
+  EXACT = "EXACT",
+  MINIMUM = "MINIMUM",
+  MAXIMUM = "MAXIMUM",
+  GREATER = "GREATER",
+  LESS = "LESS"
+}
+
+export interface NumericSearchCriteria {
+  value?: number;
+  comparisonType?: ComparisonType;
+}
+
 export interface RecipeSearchRequest {
-  name?: string;
-  isVegetarian?: boolean;
-  maxPrepTime?: number;
-  maxCookTime?: number;
-  ingredients?: string[];
+  textSearch?: string;
+  vegetarian?: boolean;
+  servings?: NumericSearchCriteria;
+  prepTime?: NumericSearchCriteria;
+  cookTime?: NumericSearchCriteria;
 }

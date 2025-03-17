@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { Recipe, RecipeSearchRequest } from '@/types/Recipe';
 import { fetchAllRecipes, searchRecipes } from '@/services/api';
@@ -38,13 +37,8 @@ const HomePage = () => {
   const handleSearch = async (searchParams: RecipeSearchRequest) => {
     try {
       setIsLoading(true);
-      if (Object.keys(searchParams).length === 0) {
-        // If no search params, load all recipes
-        await loadRecipes();
-      } else {
-        const results = await searchRecipes(searchParams);
-        setRecipes(results);
-      }
+      const results = await searchRecipes(searchParams);
+      setRecipes(results);
     } catch (error) {
       console.error('Search failed:', error);
       toast({
@@ -52,33 +46,83 @@ const HomePage = () => {
         description: 'Failed to search recipes. Please try again.',
         variant: 'destructive',
       });
-      // For demo purposes, filter sample data if API fails
-      filterSampleRecipes(searchParams);
+      // For demo purposes, apply mock filtering if the API call fails
+      // This will be replaced with the actual API call in production
+      applyMockFiltering(searchParams);
     } finally {
       setIsLoading(false);
     }
   };
 
   // For demo purposes only - remove in production
-  const filterSampleRecipes = (params: RecipeSearchRequest) => {
+  const applyMockFiltering = (params: RecipeSearchRequest) => {
+    // Start with all sample recipes
     let filtered = [...sampleRecipes];
     
-    if (params.name) {
-      filtered = filtered.filter(r => 
-        r.name.toLowerCase().includes(params.name!.toLowerCase())
+    // Apply text search filter
+    if (params.textSearch) {
+      const searchLower = params.textSearch.toLowerCase();
+      filtered = filtered.filter(recipe => 
+        (recipe.name && recipe.name.toLowerCase().includes(searchLower)) ||
+        (recipe.instructions && recipe.instructions.toLowerCase().includes(searchLower)) ||
+        (recipe.ingredients && recipe.ingredients.some(i => i.toLowerCase().includes(searchLower)))
       );
     }
     
-    if (params.isVegetarian !== undefined) {
-      filtered = filtered.filter(r => r.isVegetarian === params.isVegetarian);
+    // Apply vegetarian filter
+    if (params.vegetarian !== undefined) {
+      filtered = filtered.filter(r => r.isVegetarian === params.vegetarian);
     }
     
-    if (params.maxPrepTime !== undefined) {
-      filtered = filtered.filter(r => r.prepTime <= params.maxPrepTime!);
+    // Apply prep time filter
+    if (params.prepTime?.value !== undefined) {
+      const value = params.prepTime.value;
+      const compType = params.prepTime.comparisonType;
+      
+      filtered = filtered.filter(r => {
+        switch(compType) {
+          case 'EXACT': return r.prepTime === value;
+          case 'MINIMUM': return r.prepTime >= value;
+          case 'MAXIMUM': return r.prepTime <= value;
+          case 'GREATER': return r.prepTime > value;
+          case 'LESS': return r.prepTime < value;
+          default: return true;
+        }
+      });
     }
     
-    if (params.maxCookTime !== undefined) {
-      filtered = filtered.filter(r => r.cookTime <= params.maxCookTime!);
+    // Apply cook time filter
+    if (params.cookTime?.value !== undefined) {
+      const value = params.cookTime.value;
+      const compType = params.cookTime.comparisonType;
+      
+      filtered = filtered.filter(r => {
+        switch(compType) {
+          case 'EXACT': return r.cookTime === value;
+          case 'MINIMUM': return r.cookTime >= value;
+          case 'MAXIMUM': return r.cookTime <= value;
+          case 'GREATER': return r.cookTime > value;
+          case 'LESS': return r.cookTime < value;
+          default: return true;
+        }
+      });
+    }
+    
+    // Apply servings filter
+    if (params.servings?.value !== undefined) {
+      const value = params.servings.value;
+      const compType = params.servings.comparisonType;
+      
+      filtered = filtered.filter(r => {
+        switch(compType) {
+          case 'EXACT': return r.servings === value;
+          case 'MINIMUM': return r.servings >= value;
+          case 'MAXIMUM': return r.servings <= value;
+          case 'GREATER': return r.servings > value;
+          case 'LESS': return r.servings < value;
+          default: return true;
+        }
+      });
     }
     
     setRecipes(filtered);

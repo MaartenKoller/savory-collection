@@ -75,6 +75,16 @@ export const deleteRecipe = async (id: number): Promise<void> => {
 // Search recipes
 export const searchRecipes = async (searchParams: RecipeSearchRequest): Promise<Recipe[]> => {
   try {
+    // If searchParams is empty, fetch all recipes
+    if (Object.keys(searchParams).length === 0 || 
+        (Object.keys(searchParams).every(key => {
+          const value = searchParams[key as keyof RecipeSearchRequest];
+          return value === undefined || value === null || 
+                 (typeof value === 'object' && Object.keys(value).length === 0);
+        }))) {
+      return fetchAllRecipes();
+    }
+    
     const response = await fetch(`${API_URL}/search`, {
       method: 'POST',
       headers: {
@@ -82,9 +92,11 @@ export const searchRecipes = async (searchParams: RecipeSearchRequest): Promise<
       },
       body: JSON.stringify(searchParams),
     });
+    
     if (!response.ok) {
       throw new Error('Failed to search recipes');
     }
+    
     return await response.json();
   } catch (error) {
     console.error('Error searching recipes:', error);
